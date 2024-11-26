@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Flash小游戏</title>
+        <link rel="icon" href="res/favicon.png" sizes="64x64">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Flash小游戏">
+        <style type="text/css">
+            body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin: 15px
+            }
+            .nav {
+                height: 25px;
+                margin-bottom: 15px;
+            }
+            .player {
+                display: grid !important;
+                /*
+                height: calc(100vh - calc(40px + 15px * 2));
+                width: calc(100vw - calc(15px * 2));
+                */
+                aspect-ratio: 4 / 3;
+            }
+            .player > * {
+                aspect-ratio: 4 / 3;
+                width: auto !important;
+                height: auto !important;
+            }
+            #warn {
+                position: fixed;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 15px;
+                border-radius: 5px;
+                z-index: 1000;
+                display: none;
+            }
+            .renderer {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                height: 50px;
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="nav">
+            <label for="fileSelect">选择游戏:</label>
+            <select id="fileSelect"></select>
+            <button id="loadButton">加载游戏</button>
+            <p style="display: inline;">或者</p>
+            <input type="file" id="fileInput" accept="application/vnd.adobe.flash.movie, application/x-shockwave-flash" style="display: none;">
+            <button id="chooseFile">选择文件</button>
+        </div>
+        <div class="renderer">
+            <label for="renderer">渲染器:</label>
+            <select id="renderer">
+                <option value="wgpu-webgl">wgpu-webgl</option>
+                <option value="webgpu">webgpu</option>
+            </select>
+        </div>
+        <div id="warn"></div>
+        <div class="player" id="player"></div>
+        <script>
+            window.RufflePlayer = window.RufflePlayer || {};
+            window.addEventListener("load", (event) => {
+                const ruffle = window.RufflePlayer.newest();
+                const player = ruffle.createPlayer();
+                const container = document.getElementById("player");
+                container.appendChild(player);
+
+                const swfFiles = [
+                    "res/swf/PapasBakeria.swf",
+                    "res/swf/PapasBurgeria.swf",
+                    "res/swf/PapasCheeseria.swf",
+                    "res/swf/PapasDonuteria.swf",
+                    "res/swf/PapasFreezeria.swf",
+                    "res/swf/PapasHotDoggeria.swf",
+                    "res/swf/PapasPanCakeria.swf",
+                    "res/swf/PapasPastaria.swf",
+                    "res/swf/PapasPizzeria.swf",
+                    "res/swf/PapasScooperia.swf",
+                    "res/swf/PapasSushiria.swf",
+                    "res/swf/PapasWingeria.swf"
+                ];
+
+                const fileSelect = document.getElementById("fileSelect");
+                swfFiles.forEach((file, index) => {
+                    const fileName = file.split('/').pop();
+                    const option = new Option(fileName.replace(".swf", ""), index);
+                fileSelect.appendChild(option);
+                });
+
+                const loadButton = document.getElementById("loadButton");
+                loadButton.addEventListener("click", () => {
+                    const selectedFileIndex = fileSelect.value;
+                    const selectedFile = swfFiles[selectedFileIndex];
+
+                    player.ruffle().load(selectedFile).then(() => {
+                        console.info("Ruffle successfully loaded the file");
+                    }).catch((e) => {
+                        console.error(`Ruffle failed to load the file: ${e}`);
+                    });
+                });
+
+                const chooseFile = document.getElementById('chooseFile');
+                const fileInput = document.getElementById('fileInput');
+
+                chooseFile.addEventListener('click', function() {
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', function() {
+                    const fileChosen = fileInput.files[0];
+                    const fileChosenURL = URL.createObjectURL(fileChosen);
+                    player.ruffle().load(fileChosenURL).then(() => {
+                        console.info("Ruffle successfully loaded the file");
+                    }).catch((e) => {
+                        console.error(`Ruffle failed to load the file: ${e}`);
+                    });
+                });
+            });
+
+            const selectElement = document.getElementById('renderer');
+            let timeoutId;
+            selectElement.addEventListener('change', (event) => {
+                const selectedRenderer = event.target.value;
+                window.RufflePlayer.config.preferredRenderer = selectedRenderer
+                console.log('Preferred renderer set to:', selectedRenderer);
+
+                const warn = document.getElementById('warn');
+                warn.textContent = '渲染器已更改为 "' + selectedRenderer + '"。请重新加载播放器以使更改生效。';
+                warn.style.display = 'block';
+
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    warn.style.display = 'none';
+                }, 3000);
+            });
+
+            window.RufflePlayer.config = {
+                "allowScriptAccess": true,
+                "autoplay": "auto",
+                "showSwfDownload": true,
+                "upgradeToHttps": window.location.protocol === "https:",
+                "scale": "showAll",
+                "quality": "low",
+                "openUrlMode": "confirm",
+                "allowNetworking": "all",
+                "preferredRenderer": "wgpu-webgl",
+                "playerVersion": "32",
+                "playerRuntime": "flashPlayer",
+            };
+        </script>
+        <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+        <script>
+            function changeStyle() {
+                const aspectRatio = window.innerWidth / window.innerHeight;
+                const playerDiv = document.querySelector('.player');
+
+                if (!playerDiv) return;
+
+                if (aspectRatio < 1.256) {
+                    playerDiv.style.width = 'calc(100vw - 30px)';
+                    playerDiv.style.removeProperty('height');
+                } else {
+                    playerDiv.style.height = 'calc(100vh - 70px)';
+                    playerDiv.style.removeProperty('width');
+                }
+            }
+
+            changeStyle();
+
+            window.onresize = changeStyle;
+        </script>
+    </body>
+</html>
