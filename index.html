@@ -15,7 +15,7 @@
             }
             .nav {
                 display: flex;
-                align-items: center;
+                align-items: baseline;
                 height: 25px;
                 margin-bottom: 15px;
             }
@@ -67,7 +67,7 @@
     <body>
         <div class="nav">
             <label for="fileSelect">选择:</label>
-            <select id="fileSelect"></select>
+            <select id="fileSelect" style="align-self: center;"></select>
             <button id="loadButton">加载</button>
             <input type="file" id="fileInput" accept="application/vnd.adobe.flash.movie, application/x-shockwave-flash" style="display: none;">
             <button id="chooseFile">选择文件</button>
