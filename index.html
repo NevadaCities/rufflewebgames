@@ -111,7 +111,7 @@
                 swfFiles.forEach((file, index) => {
                     const fileName = file.split('/').pop();
                     const option = new Option(fileName.replace(".swf", ""), index);
-                fileSelect.appendChild(option);
+                    fileSelect.appendChild(option);
                 });
 
                 const loadButton = document.getElementById("loadButton");
