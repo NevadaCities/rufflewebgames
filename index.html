@@ -6,7 +6,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Flash小游戏">
-        <style type="text/css">
+        <style>
             body {
                 display: flex;
                 flex-direction: column;
@@ -20,7 +20,7 @@
                 margin-bottom: 15px;
             }
             .nav > * {
-                height: 25px;
+                height: 100%;
             }
             .player {
                 display: grid !important;
@@ -78,6 +78,8 @@
             <select id="renderer">
                 <option value="wgpu-webgl">wgpu-webgl</option>
                 <option value="webgpu">webgpu</option>
+                <option value="webgl">webgl</option>
+                <option value="canvas">canvas</option>
             </select>
         </div>
         <div id="warn"></div>
@@ -142,9 +144,9 @@
                 });
             });
 
-            const selectElement = document.getElementById('renderer');
+            const selectRenderer = document.getElementById('renderer');
             let timeoutId;
-            selectElement.addEventListener('change', (event) => {
+            selectRenderer.addEventListener('change', (event) => {
                 const selectedRenderer = event.target.value;
                 window.RufflePlayer.config.preferredRenderer = selectedRenderer
                 console.log('Preferred renderer set to:', selectedRenderer);
