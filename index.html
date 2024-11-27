@@ -22,16 +22,19 @@
             .nav > * {
                 height: 100%;
             }
+            /*以4比3比例动态更改Ruffle Player的大小*/
             .player {
                 display: grid !important;
                 /*
                 height: calc(100vh - calc(40px + 15px * 2));
                 width: calc(100vw - calc(15px * 2));
                 */
-                aspect-ratio: 4 / 3;
+                /*固定高度或宽度来计算另外一个属性的值*/
+                aspect-ratio: 4 / 3; /*Chrome系浏览器中必须为父子元素同时加上aspect-ratio才能生效*/
             }
             .player > * {
                 aspect-ratio: 4 / 3;
+                /*覆盖Ruffle Player自身CSS样式*/
                 width: auto !important;
                 height: auto !important;
             }
@@ -67,8 +70,21 @@
     </head>
     <body>
         <div class="nav">
-            <label for="fileSelect">选择:</label>
-            <select id="fileSelect" style="align-self: center;"></select>
+            <label for="gameSelect">选择:</label>
+            <select id="gameSelect" style="align-self: center;">
+                <option value="老爹饼干圣代店" id="老爹饼干圣代店">老爹饼干圣代店</option>
+                <option value="老爹汉堡店" id="老爹汉堡店">老爹汉堡店</option>
+                <option value="老爹烘焙店" id="老爹烘焙店">老爹烘焙店</option>
+                <option value="老爹煎饼店" id="老爹煎饼店">老爹煎饼店</option>
+                <option value="老爹烤翅店" id="老爹烤翅店">老爹烤翅店</option>
+                <option value="老爹披萨店" id="老爹披萨店">老爹披萨店</option>
+                <option value="老爹热狗店" id="老爹热狗店">老爹热狗店</option>
+                <option value="老爹三明治店" id="老爹三明治店">老爹三明治店</option>
+                <option value="老爹圣代店" id="老爹圣代店">老爹圣代店</option>
+                <option value="老爹寿司店" id="老爹寿司店">老爹寿司店</option>
+                <option value="老爹甜甜圈店" id="老爹甜甜圈店">老爹甜甜圈店</option>
+                <option value="老爹意面店" id="老爹意面店">老爹意面店</option>
+            </select>
             <button id="loadButton">加载</button>
             <input type="file" id="fileInput" accept="application/vnd.adobe.flash.movie, application/x-shockwave-flash" style="display: none;">
             <button id="chooseFile">选择文件</button>
@@ -85,6 +101,7 @@
         <div id="warn"></div>
         <div class="player" id="player"></div>
         <script>
+            //播放器创建与初始化
             window.RufflePlayer = window.RufflePlayer || {};
             window.addEventListener("load", (event) => {
                 const ruffle = window.RufflePlayer.newest();
@@ -92,32 +109,15 @@
                 const container = document.getElementById("player");
                 container.appendChild(player);
 
-                const swfFiles = [
-                    "res/swf/老爹饼干圣代店.swf",
-                    "res/swf/老爹汉堡店.swf",
-                    "res/swf/老爹烘焙店.swf",
-                    "res/swf/老爹煎饼店.swf",
-                    "res/swf/老爹烤翅店.swf",
-                    "res/swf/老爹披萨店.swf",
-                    "res/swf/老爹热狗店.swf",
-                    "res/swf/老爹三明治店.swf",
-                    "res/swf/老爹圣代店.swf",
-                    "res/swf/老爹寿司店.swf",
-                    "res/swf/老爹甜甜圈店.swf",
-                    "res/swf/老爹意面店.swf"
-                ];
-
-                const fileSelect = document.getElementById("fileSelect");
-                swfFiles.forEach((file, index) => {
-                    const fileName = file.split('/').pop();
-                    const option = new Option(fileName.replace(".swf", ""), index);
-                    fileSelect.appendChild(option);
+                //记录当前选择的游戏并存入localStorage
+                document.querySelector('#gameSelect').addEventListener('change', function(evt) {
+                    localStorage.setItem('selectedOption', evt.target.value);
                 });
 
+                //点击按钮后从当前选项读取游戏路径并加载到Ruffle Player中
                 const loadButton = document.getElementById("loadButton");
                 loadButton.addEventListener("click", () => {
-                    const selectedFileIndex = fileSelect.value;
-                    const selectedFile = swfFiles[selectedFileIndex];
+                var selectedFile = "res/swf/" + document.getElementById("gameSelect").value + ".swf";
 
                     player.ruffle().load(selectedFile).then(() => {
                         console.info("Ruffle successfully loaded the file");
@@ -133,6 +133,7 @@
                     fileInput.click();
                 });
 
+                //单独为用户从本地选择的swf文件加载Ruffle Player
                 fileInput.addEventListener('change', function() {
                     const fileChosen = fileInput.files[0];
                     const fileChosenURL = URL.createObjectURL(fileChosen);
@@ -144,6 +145,7 @@
                 });
             });
 
+            //修改偏好渲染器并显示提醒弹窗
             const selectRenderer = document.getElementById('renderer');
             let timeoutId;
             selectRenderer.addEventListener('change', (event) => {
@@ -161,12 +163,14 @@
                 }, 3000);
             });
 
+            //Ruffle Player的基本配置
             window.RufflePlayer.config = {
                 "allowScriptAccess": true,
                 "autoplay": "auto",
                 "showSwfDownload": true,
                 "upgradeToHttps": window.location.protocol === "https:",
 
+                //缩放设置，防止当前swf不应显示的素材显示出来
                 "scale": "showAll",
                 "forceAlign": "true",
                 "forceScale": "true",
@@ -183,6 +187,7 @@
         </script>
         <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
         <script>
+            //以4比3比例动态更改Ruffle Player的大小
             function changeStyle() {
                 const aspectRatio = window.innerWidth / window.innerHeight;
                 const playerDiv = document.querySelector('.player');
@@ -201,6 +206,15 @@
             changeStyle();
 
             window.onresize = changeStyle;
+        </script>
+        <script>
+            //当网页加载完成后恢复记忆选择的游戏
+            document.addEventListener('DOMContentLoaded', function() {
+            const savedOption = localStorage.getItem('selectedOption');
+                if (savedOption) {
+                    document.getElementById(savedOption).selected = "true";;
+                }
+            });
         </script>
     </body>
 </html>
