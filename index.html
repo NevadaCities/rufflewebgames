@@ -117,7 +117,7 @@
                 //点击按钮后从当前选项读取游戏路径并加载到Ruffle Player中
                 const loadButton = document.getElementById("loadButton");
                 loadButton.addEventListener("click", () => {
-                var selectedFile = "res/swf/" + document.getElementById("gameSelect").value + ".swf";
+                    var selectedFile = "res/swf/" + document.getElementById("gameSelect").value + ".swf";
 
                     player.ruffle().load(selectedFile).then(() => {
                         console.info("Ruffle successfully loaded the file");
