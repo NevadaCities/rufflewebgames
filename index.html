@@ -110,8 +110,8 @@
                 container.appendChild(player);
 
                 //记录当前选择的游戏并存入localStorage
-                document.querySelector('#gameSelect').addEventListener('change', function(evt) {
-                    localStorage.setItem('selectedOption', evt.target.value);
+                document.querySelector('#gameSelect').addEventListener('change', function(event) {
+                    localStorage.setItem('selectedOption', event.target.value);
                 });
 
                 //点击按钮后从当前选项读取游戏路径并加载到Ruffle Player中
