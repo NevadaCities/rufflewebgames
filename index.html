@@ -38,7 +38,7 @@
                 width: auto !important;
                 height: auto !important;
             }
-            #warn {
+            #rendererChangeWarning {
                 position: fixed;
                 left: 50%;
                 top: 50%;
@@ -51,7 +51,20 @@
                 display: none;
                 text-align: center;
             }
-            .renderer {
+            #fontChangeWarning {
+                position: fixed;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 15px;
+                border-radius: 5px;
+                z-index: 1000;
+                display: none;
+                text-align: center;
+            }
+            .moreSettings {
                 position: fixed;
                 bottom: 20px;
                 right: 20px;
@@ -59,12 +72,18 @@
                 color: white;
                 padding: 10px;
                 border-radius: 5px;
-                height: 50px;
+                height: 80px;
                 z-index: 1000;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
                 align-items: center;
+            }
+            .moreSettings > * {
+                height: 24px;
+            }
+            .moreSettings > label ~ * {
+                width: 96px;
             }
         </style>
     </head>
@@ -89,7 +108,8 @@
             <input type="file" id="fileInput" accept="application/vnd.adobe.flash.movie, application/x-shockwave-flash" style="display: none;">
             <button id="chooseFile">选择文件</button>
         </div>
-        <div class="renderer">
+
+        <div class="moreSettings">
             <label for="renderer">渲染器:</label>
             <select id="renderer">
                 <option value="wgpu-webgl">wgpu-webgl</option>
@@ -97,8 +117,13 @@
                 <option value="webgl">webgl</option>
                 <option value="canvas">canvas</option>
             </select>
+            <input type="file" id="fontFileInput" accept="application/vnd.adobe.flash.movie, application/x-shockwave-flash" style="display: none;">
+            <button id="chooseFontFile">导入字体文件</button>
         </div>
-        <div id="warn"></div>
+
+        <div id="rendererChangeWarning"></div>
+        <div id="fontChangeWarning"></div>
+
         <div class="player" id="player"></div>
         <script>
             //播放器创建与初始化
@@ -143,6 +168,31 @@
                         console.error(`Ruffle failed to load the file: ${e}`);
                     });
                 });
+
+                const chooseFontFile = document.getElementById('chooseFontFile');
+                const fontFileInput = document.getElementById('fontFileInput');
+
+                chooseFontFile.addEventListener('click', function() {
+                    fontFileInput.click();
+                });
+
+                //导入SWF文件所需的字体，仅限汉化后的SWF
+                let timeoutId;
+                fontFileInput.addEventListener('change', function() {
+                    const fontFileChosen = fontFileInput.files[0];
+                    const fontFileChosenURL = URL.createObjectURL(fontFileChosen);
+                    window.RufflePlayer.config.fontSources = [fontFileChosenURL]
+                    console.log('User-defined fonts have been imported:', fontFileChosenURL);
+
+                    const fontChangeWarning = document.getElementById('fontChangeWarning');
+                    fontChangeWarning.textContent = '用户自定义字体已加载';
+                    fontChangeWarning.style.display = 'block';
+
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        fontChangeWarning.style.display = 'none';
+                    }, 3000);
+                });
             });
 
             //修改偏好渲染器并显示提醒弹窗
@@ -153,20 +203,20 @@
                 window.RufflePlayer.config.preferredRenderer = selectedRenderer
                 console.log('Preferred renderer set to:', selectedRenderer);
 
-                const warn = document.getElementById('warn');
-                warn.textContent = '渲染器已更改为“' + selectedRenderer + '”，请重新加载游戏以使更改生效。';
-                warn.style.display = 'block';
+                const rendererChangeWarning = document.getElementById('rendererChangeWarning');
+                rendererChangeWarning.textContent = '渲染器已更改为“' + selectedRenderer + '”，请重新加载游戏以使更改生效。';
+                rendererChangeWarning.style.display = 'block';
 
                 clearTimeout(timeoutId);
                 timeoutId = setTimeout(() => {
-                    warn.style.display = 'none';
+                    rendererChangeWarning.style.display = 'none';
                 }, 3000);
             });
 
             //Ruffle Player的基本配置
             window.RufflePlayer.config = {
                 "allowScriptAccess": true,
-                "autoplay": "auto",
+                "autoplay": "on",
                 "showSwfDownload": true,
                 "upgradeToHttps": window.location.protocol === "https:",
 
