@@ -7,9 +7,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Flash小游戏">
         <style>
+            /*使html与body元素伸展到整个可见视图*/
             html {
                 height: calc(100vh - 30px);
             }
+            /*用flex布局使所有元素在可见视图里左右居中*/
             body {
                 display: flex;
                 flex-direction: column;
@@ -36,6 +38,7 @@
                 /*固定高度或宽度来计算另外一个属性的值*/
                 aspect-ratio: 4 / 3; /*Chrome系浏览器中必须为父子元素同时加上aspect-ratio才能生效*/
                 margin: auto;
+                background-color: black;
             }
             .player > ruffle-player {
                 aspect-ratio: 4 / 3;
@@ -81,6 +84,7 @@
                 border-radius: 5px;
                 height: 80px;
                 z-index: 1000;
+                /*用grid让内部的元素自动等宽对齐*/
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             }
@@ -117,6 +121,7 @@
                 display: flex;
                 flex-direction: column;
             }
+            /*默认状态下使帮助信息部分隐藏*/
             .helpInfoDivHide {
                 visibility: hidden;
             }
@@ -290,6 +295,7 @@
                 "playerRuntime": "flashPlayer",
             };
 
+            //点击使用方法按钮显示或隐藏帮助信息
             function helpInfo() {
                 var div = document.getElementById("helpInfoDiv");
                 div.classList.toggle("helpInfoDivHide");
