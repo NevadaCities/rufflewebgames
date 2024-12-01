@@ -7,11 +7,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Flash小游戏">
         <style>
+            html {
+                height: calc(100vh - 30px);
+            }
             body {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                margin: 15px
+                margin: 15px;
+                height: 100%;
             }
             .nav {
                 display: flex;
@@ -31,6 +35,7 @@
                 */
                 /*固定高度或宽度来计算另外一个属性的值*/
                 aspect-ratio: 4 / 3; /*Chrome系浏览器中必须为父子元素同时加上aspect-ratio才能生效*/
+                margin: auto;
             }
             .player > ruffle-player {
                 aspect-ratio: 4 / 3;
