@@ -50,6 +50,7 @@
                 z-index: 1000;
                 display: none;
                 text-align: center;
+                line-break: strict;
             }
             #fontChangeWarning {
                 position: fixed;
@@ -63,6 +64,7 @@
                 z-index: 1000;
                 display: none;
                 text-align: center;
+                line-break: strict;
             }
             .moreSettings {
                 position: fixed;
@@ -82,6 +84,36 @@
             }
             .moreSettings > label {
                 text-align: center;
+            }
+            .helpInfo {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                height: 24px;
+                z-index: 1000;
+            }
+            #helpInfoDiv {
+                position: fixed;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 15px;
+                width: 300px;
+                border-radius: 5px;
+                z-index: 1000;
+                text-align: center;
+                line-break: strict;
+                display: flex;
+                flex-direction: column;
+            }
+            .helpInfoDivHide {
+                visibility: hidden;
             }
         </style>
     </head>
@@ -117,6 +149,26 @@
             </select>
             <input type="file" id="fontFileInput" accept="application/vnd.adobe.flash.movie, application/x-shockwave-flash" style="display: none;">
             <button id="chooseFontFile">导入字体文件</button>
+        </div>
+
+        <div class="helpInfo">
+            <button onclick="helpInfo()">使用方法</button>
+        </div>
+
+        <div id="helpInfoDiv" class="helpInfoDivHide">
+            <span style="font-size: larger;">使用方法:</span><br style="display: none;" />
+            <span style="padding-top: 10px;text-align: justify;text-align-last: left;">
+                从游戏列表中任意选择一款游戏加载，或者从本地选择一个文件加载。
+            </span>
+            <span style="padding-top: 10px;text-align: justify;text-align-last: left;">
+                不同的渲染器的区别可在<a href="https://github.com/ruffle-rs/ruffle/wiki/Using-Ruffle#list-of-options" target="_blank" style="text-decoration: none;color: #87ceeb;">Ruffle Player的官方Wiki</a>中查找相关信息。
+            </span>
+            <span style="padding-top: 10px;text-align: justify;text-align-last: left;">
+                导入字体文件用于部分汉化后的小游戏字体显示不正常，仅限导入预先做好内含字体的SWF文件。可在<a href="https://github.com/ruffle-rs/ruffle/wiki/Using-Ruffle#list-of-options" target="_blank" style="text-decoration: none;color: #87ceeb;">Ruffle Player的官方Wiki</a>中查找相关信息。
+            </span>
+            <span style="padding-top: 10px;text-align: justify;text-align-last: left;">
+                再次点击按钮即可隐藏本提示。
+            </span>
         </div>
 
         <div id="rendererChangeWarning"></div>
@@ -232,6 +284,12 @@
                 "playerVersion": "32",
                 "playerRuntime": "flashPlayer",
             };
+
+            function helpInfo() {
+                var div = document.getElementById("helpInfoDiv");
+                div.classList.toggle("helpInfoDivHide");
+            }
+
         </script>
         <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
         <script>
