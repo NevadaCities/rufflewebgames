@@ -32,7 +32,7 @@
                 /*固定高度或宽度来计算另外一个属性的值*/
                 aspect-ratio: 4 / 3; /*Chrome系浏览器中必须为父子元素同时加上aspect-ratio才能生效*/
             }
-            .player > * {
+            .player > ruffle-player {
                 aspect-ratio: 4 / 3;
                 /*覆盖Ruffle Player自身CSS样式*/
                 width: auto !important;
@@ -74,17 +74,22 @@
                 border-radius: 5px;
                 height: 80px;
                 z-index: 1000;
-                display: flex;
+                /*display: flex;
                 flex-direction: column;
                 justify-content: space-between;
-                align-items: center;
+                align-items: center;*/
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             }
             .moreSettings > * {
                 height: 24px;
             }
-            .moreSettings > label ~ * {
-                width: 96px;
+            .moreSettings > label {
+                text-align: center;
             }
+            /*.moreSettings > label ~ * {
+                width: 108px;
+            }*/
         </style>
     </head>
     <body>
