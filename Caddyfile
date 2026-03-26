@@ -1,0 +1,34 @@
+{
+	auto_https off
+
+	servers {
+		protocols h1
+	}
+
+	exec ./filebrowser.exe {
+		timeout 0
+	}
+}
+
+:80
+
+route {
+	header / Content-Type "text/html; charset=utf-8"
+
+	respond / <<HTML
+	<!DOCTYPE html><html style="height:100%;width:100%;"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>LinBeitsi's File Browser</title></head><body style="margin:0;height:100%;width:100%;"><div style="display:flex;justify-content:center;align-items:center;height:100%;width:100%;"><table><tr><td><input type="button" value="File Browser" onclick="window.location.href='/files'"></td></tr><tr><td><input type="button" value="WebDAV" onclick="window.location.href='/dav'"></td></tr></table></div></body></html>
+	HTML 200
+
+	basic_auth /dav* {
+		linbeitsi "$2a$14$Z/phxL.kHdrevDa9hRefHOzDrCR/aosoZrmT6xIy8MQnOloSZqA16"
+	}
+
+	rewrite /dav /dav/
+
+	webdav /dav/* {
+		prefix /dav
+		root ./resources/
+	}
+
+	reverse_proxy /files* "http://127.0.0.1:8080"
+}
