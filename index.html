@@ -6,17 +6,21 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!--声明网页需要绕过Dark Reader的深色主题-->
+        <meta name="darkreader-lock">
         <meta name="description" content="Flash小游戏">
         <style>
-            /*使html与body元素伸展到整个可见视图*/
             html {
-                height: calc(100% - 30px);
+                height: calc(100% - 30px); /*使html与body元素伸展到整个可见视图*/
             }
-            /*用flex布局使所有元素在可见视图里左右居中*/
+            :root {
+                color-scheme: light dark; /* 声明页面同时支持浅色和深色模式 */
+            }
             body {
-                display: flex;
+                display: flex; /*用flex布局使所有元素在可见视图里左右居中*/
                 flex-direction: column;
                 align-items: center;
+                background-color: light-dark(white, #0d0d0d);
                 margin: 15px;
                 height: 100%;
             }
@@ -34,14 +38,13 @@
             .nav > * {
                 height: 100%;
             }
-            /*以4比3比例动态更改Ruffle Player的大小*/
             .player {
                 display: grid !important;
                 /*
+                以4比3比例动态更改Ruffle Player的大小，且固定高度或宽度来计算另外一个属性的值：
                 height: calc(100vh - calc(40px + 15px * 2));
                 width: calc(100vw - calc(15px * 2));
                 */
-                /*固定高度或宽度来计算另外一个属性的值*/
                 aspect-ratio: 4 / 3; /*Chrome系浏览器中必须为父子元素同时加上aspect-ratio才能生效*/
                 margin: auto;
                 background-color: #696969;
@@ -90,8 +93,7 @@
                 border-radius: 5px;
                 height: 80px;
                 z-index: 1000;
-                /*用grid让内部的元素自动等宽对齐*/
-                display: grid;
+                display: grid; /*用grid让内部的元素自动等宽对齐*/
                 grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             }
             .moreSettings > * {
@@ -127,9 +129,8 @@
                 display: flex;
                 flex-direction: column;
             }
-            /*默认状态下使帮助信息部分隐藏*/
             .helpInfoDivHide {
-                visibility: hidden;
+                visibility: hidden; /*默认状态下使帮助信息部分隐藏*/
             }
         </style>
     </head>
