@@ -20,7 +20,7 @@
                 display: flex; /*用flex布局使所有元素在可见视图里左右居中*/
                 flex-direction: column;
                 align-items: center;
-                background-color: light-dark(white, #0d0d0d);
+                background-color: light-dark(white, #101010);
                 margin: 15px;
                 height: 100%;
             }
@@ -112,6 +112,8 @@
                 border-radius: 5px;
                 height: 24px;
                 z-index: 1000;
+                display: grid;
+                align-content: end;
             }
             #helpInfoDiv {
                 position: fixed;
@@ -318,7 +320,7 @@
 
                 if (!playerDiv) return;
 
-                if (aspectRatio < 1.256) {
+                if (aspectRatio < 1.25) {
                     playerDiv.style.width = 'calc(100% - 30px)';
                     playerDiv.style.removeProperty('height');
                 } else {
