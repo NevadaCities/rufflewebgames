@@ -26,8 +26,8 @@
             }
             @media only screen and (max-width: 768px) and (pointer: coarse) {
                 body {
-                    margin-left: 2px;
-                    margin-right: 2px;
+                    margin-left: 5px;
+                    margin-right: 5px;
                 }
             }
             .nav {
@@ -319,6 +319,14 @@
         </script>
         <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
         <script>
+            //判断是否处于手机视图，条件为屏幕宽度小于等于768px且指针为粗略类型（即触摸屏）
+            function isMobileView() {
+                const mediaQuery = window.matchMedia('(max-width: 768px) and (pointer: coarse)');
+
+                // 如果条件生效（即处于手机视图），.matches 会返回 true
+                return mediaQuery.matches;
+            }
+
             //以4比3比例动态更改Ruffle Player的大小
             function changeStyle() {
                 const aspectRatio = window.innerWidth / window.innerHeight;
@@ -326,7 +334,10 @@
 
                 if (!playerDiv) return;
 
-                if (aspectRatio < 1.25) {
+                if (aspectRatio < 1.25 && isMobileView()) {
+                    playerDiv.style.width = 'calc(100% - 10px)';
+                    playerDiv.style.removeProperty('height');
+                } else if (aspectRatio < 1.25) {
                     playerDiv.style.width = 'calc(100% - 30px)';
                     playerDiv.style.removeProperty('height');
                 } else {
