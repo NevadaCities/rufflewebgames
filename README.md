@@ -5,22 +5,22 @@ A Flash Games Website using Ruffle Emulator.
 
 This project contains code and assets covered by different terms:
 
-SOURCE CODE: All .js, .ts, .html, .css, .json, and configuration
+**SOURCE CODE**: All .js, .ts, .html, .css, .json, and configuration
 files are licensed under the MIT License (see full text below).
 
-ASSET FILES: All Flash (.swf) media contained within the following directories:
+**ASSET FILES**: All Flash (.swf) media contained within the following directories:
 
 - /res/swf
 
-ARE ALL RIGHTS RESERVED.
-These files are NOT covered by the MIT License.
-You may NOT copy, redistribute, modify, or use these assets in
+**ARE ALL RIGHTS RESERVED**.
+These files are **NOT** covered by the MIT License.
+You may **NOT** copy, redistribute, modify, or use these assets in
 any other project (commercial or non-commercial) without the
-explicit written permission of the copyright holder Flipline IDS LLC and Creaky Corpse Ltd.
+explicit written permission of the copyright holder **Flipline IDS LLC** and **Creaky Corpse Ltd**.
 
-Copyright © 2026 Flipline IDS LLC.
+**Copyright © 2026 Flipline IDS LLC.**
 
-Copyright © 2026 Creaky Corpse Ltd.
+**Copyright © 2026 Creaky Corpse Ltd.**
 
 ## MIT LICENSE (Code Only)
 
@@ -48,6 +48,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-Note: The term "Software" in the above license applies exclusively to
+*Note: The term "Software" in the above license applies exclusively to
 the source code and does NOT extend to the asset files listed in
-the copyright notice at the top of this document.
+the copyright notice at the top of this document.*
