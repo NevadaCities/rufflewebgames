@@ -36,7 +36,7 @@
                 background-color: light-dark(white, #101010);
                 margin: 15px;
                 height: 100%;
-                font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+                font-family: "Noto Sans SC", sans-serif;
             }
             @media only screen and (max-width: 576px) and (pointer: coarse) {
                 body {
@@ -46,8 +46,9 @@
             }
             .nav {
                 display: flex;
-                align-items: center;
-                justify-content: center;
+                flex-direction: row;
+                align-items: last baseline;
+                gap: 5px;
                 height: 25px;
                 margin-bottom: 15px;
                 color: white;
@@ -57,13 +58,6 @@
                 border-radius: 5px;
             }
             .nav > * {
-                height: 100%;
-            }
-            .nav > label {
-                display: inline-flex;
-                align-items: baseline;
-            }
-            .nav > label span {
                 height: 100%;
             }
             .player {
@@ -123,6 +117,8 @@
                 z-index: 1000;
                 display: grid; /*用grid让内部的元素自动等宽对齐*/
                 grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                align-items: center;
+                gap: 3px;
             }
             .moreSettings > * {
                 height: 24px;
@@ -141,7 +137,7 @@
                 height: 24px;
                 z-index: 1000;
                 display: grid;
-                align-content: end;
+                align-content: center;
             }
             #helpInfoDiv {
                 position: fixed;
@@ -164,12 +160,14 @@
             }
             button, select {
                 font-family: inherit;
+                display: inline-flex;
+                align-items: center;
             }
         </style>
     </head>
     <body>
         <div class="nav">
-            <label for="gameSelect"><span>选择:</span></label>
+            <label for="gameSelect">选择:</label>
             <select id="gameSelect">
                 <option value="老爹饼干圣代店" id="老爹饼干圣代店">老爹饼干圣代店</option>
                 <option value="老爹汉堡店" id="老爹汉堡店">老爹汉堡店</option>
