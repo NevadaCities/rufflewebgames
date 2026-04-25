@@ -377,6 +377,49 @@
             changeStyle();
 
             window.onresize = changeStyle;
+            function updateRuffleModalStyle() {
+                // 尝试获取宿主元素
+                const hostElement = document.querySelector('ruffle-player');
+                if (!hostElement) return;
+
+                // 尝试获取 shadowRoot
+                const shadow = hostElement.shadowRoot;
+                if (!shadow) return;
+
+                // 尝试获取内部的 modal-area
+                const innerButton = shadow.querySelector('.modal-area');
+                if (!innerButton) return;
+
+                // 如果以上都找到了，说明 Ruffle 已经就绪
+                if (isMobileView()) {
+                    innerButton.style.width = '280px';
+                }
+
+                // 成功修改后，清除定时器，不再循环检查
+                clearInterval(checkRuffleTimer);
+            }
+
+            // 每 100 毫秒检查一次（由于是异步加载，用轮询最稳妥）
+            const checkRuffleTimer = setInterval(updateRuffleModalStyle, 100);
+
+            // 如果窗口大小改变，除了改变 player，可能还需要重新判定 modal-area 的大小
+            window.addEventListener('resize', () => {
+                changeStyle();
+
+                const hostElement = document.querySelector('ruffle-player');
+                if (hostElement && hostElement.shadowRoot) {
+                    const innerButton = hostElement.shadowRoot.querySelector('.modal-area');
+                    if (innerButton) {
+                        // 重新判断是否是手机视图
+                        if (isMobileView()) {
+                            innerButton.style.width = '280px';
+                        } else {
+                            // 如果不是手机视图，恢复默认宽度
+                            innerButton.style.width = '400px';
+                        }
+                    }
+                }
+            });
         </script>
         <script>
             //当网页加载完成后恢复记忆选择的游戏
