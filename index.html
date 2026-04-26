@@ -388,12 +388,13 @@
                 if (!shadow) return;
 
                 // 尝试获取内部的 modal-area
-                const innerButton = shadow.querySelector('.modal-area');
-                if (!innerButton) return;
+                const innerSaveManager = shadow.querySelector('.modal-area');
+                if (!innerSaveManager) return;
 
                 // 如果以上都找到了，说明 Ruffle 已经就绪
                 if (isMobileView()) {
-                    innerButton.style.width = '280px';
+                    innerSaveManager.style.width = '280px';
+                    innerSaveManager.style.height = '260px';
                 }
 
                 // 成功修改后，清除定时器，不再循环检查
@@ -409,14 +410,16 @@
 
                 const hostElement = document.querySelector('ruffle-player');
                 if (hostElement && hostElement.shadowRoot) {
-                    const innerButton = hostElement.shadowRoot.querySelector('.modal-area');
-                    if (innerButton) {
+                    const innerSaveManager = hostElement.shadowRoot.querySelector('.modal-area');
+                    if (innerSaveManager) {
                         // 重新判断是否是手机视图
                         if (isMobileView()) {
-                            innerButton.style.width = '280px';
+                            innerSaveManager.style.width = '280px';
+                            innerSaveManager.style.height = '260px';
                         } else {
                             // 如果不是手机视图，恢复默认宽度
-                            innerButton.style.width = '400px';
+                            innerSaveManager.style.removeProperty('width');
+                            innerSaveManager.style.removeProperty('height');
                         }
                     }
                 }
