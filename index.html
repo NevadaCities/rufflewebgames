@@ -245,9 +245,120 @@
                 select.appendChild(option);
             });
 
-            //播放器创建与初始化
+            // 缓存配置
+            const CACHE_NAME = 'flash-game-cache';
+            const CACHE_EXPIRY_DAYS = 7; // 缓存有效期（天）
+            const EXPIRY_CHECK_INTERVAL_HOURS = 6; // 自动清理过期缓存的间隔（小时）
+
+            // 缓存辅助函数
+            function getExpiryKey(url) {
+                return `cache_expiry_${btoa(url).replace(/=/g, '')}`;
+            }
+
+            function setExpiryForUrl(url, expiryTs) {
+                try {
+                    localStorage.setItem(getExpiryKey(url), expiryTs.toString());
+                } catch (e) {}
+            }
+
+            function getExpiryForUrl(url) {
+                const val = localStorage.getItem(getExpiryKey(url));
+                return val ? parseInt(val, 10) : null;
+            }
+
+            function removeExpiryForUrl(url) {
+                localStorage.removeItem(getExpiryKey(url));
+            }
+
+            // 将 SWF 存入 CacheStorage，同时记录过期时间
+            async function saveToCache(url, response) {
+                try {
+                    const cache = await caches.open(CACHE_NAME);
+                    await cache.put(url, response.clone());
+                    const expiryTs = Date.now() + CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+                    setExpiryForUrl(url, expiryTs);
+                    console.log(`Cache Stored: ${url}, valid until ${new Date(expiryTs).toLocaleString()}`);
+                } catch (err) {
+                    console.error('Cache Storage failed:', err);
+                }
+            }
+
+            // 从缓存获取 SWF 的 Blob（自动判断是否过期，过期则删除并返回 null）
+            async function getFromCache(url) {
+                try {
+                    const cache = await caches.open(CACHE_NAME);
+                    const response = await cache.match(url);
+                    if (!response) return null;
+
+                    const expiry = getExpiryForUrl(url);
+                    if (expiry && Date.now() > expiry) {
+                        // 缓存已过期，删除
+                        await cache.delete(url);
+                        removeExpiryForUrl(url);
+                        console.log(`Cache Expired and deleted: ${url}`);
+                        return null;
+                    }
+                    return await response.blob();
+                } catch (err) {
+                    console.error('Cache Read failed:', err);
+                    return null;
+                }
+            }
+
+            // 清理所有过期缓存（扫描整个 CacheStorage）
+            async function cleanExpiredCache() {
+                try {
+                    const cache = await caches.open(CACHE_NAME);
+                    const requests = await cache.keys();
+                    let deletedCount = 0;
+                    for (const request of requests) {
+                        const url = request.url;
+                        const expiry = getExpiryForUrl(url);
+                        if (expiry === null || Date.now() > expiry) {
+                            await cache.delete(request);
+                            removeExpiryForUrl(url);
+                            deletedCount++;
+                        }
+                    }
+                    if (deletedCount) console.log(`Cache Cleaned ${deletedCount} expired files`);
+                } catch (err) {
+                    console.error('Cache Cleanup error:', err);
+                }
+            }
+
             window.RufflePlayer = window.RufflePlayer || {};
-            window.addEventListener("load", (event) => {
+
+            //Ruffle Player的基本配置
+            window.RufflePlayer.config = {
+                "allowScriptAccess": true,
+                "autoplay": "on",
+                "showSwfDownload": true,
+                "upgradeToHttps": window.location.protocol === "https:",
+
+                //缩放设置，防止当前swf不应显示的素材显示出来
+                "scale": "showAll",
+                "forceAlign": "true",
+                "forceScale": "true",
+                "letterbox": "on",
+
+                "quality": "low",
+                "openUrlMode": "confirm",
+                "allowNetworking": "all",
+                "preferredRenderer": "wgpu-webgl",
+
+                "playerVersion": "32",
+                "playerRuntime": "flashPlayer",
+            };
+
+            // 播放器创建与缓存加载
+            let currentBlobUrl = null; // 用于释放之前的 Blob URL
+
+            window.addEventListener("load", async () => {
+                // 初次清理过期缓存，并定时清理
+                await cleanExpiredCache();
+                setInterval(cleanExpiredCache, EXPIRY_CHECK_INTERVAL_HOURS * 60 * 60 * 1000);
+
+                // 创建 Ruffle 播放器
                 const ruffle = window.RufflePlayer.newest();
                 const player = ruffle.createPlayer();
                 const container = document.getElementById("player");
@@ -258,16 +369,48 @@
                     localStorage.setItem('selectedOption', event.target.value);
                 });
 
-                //点击按钮后从当前选项读取游戏路径并加载到Ruffle Player中
+                // 绑定加载按钮事件（带缓存逻辑）
                 const loadButton = document.getElementById("loadButton");
-                loadButton.addEventListener("click", () => {
-                    var selectedFile = document.getElementById('gameSelect').selectedOptions[0].id;
+                loadButton.addEventListener("click", async () => {
+                    const selectedOption = document.getElementById('gameSelect').selectedOptions[0];
+                    if (!selectedOption || !selectedOption.id) {
+                        console.warn("Please select a game first");
+                        return;
+                    }
+                    const gameUrl = selectedOption.id;
 
-                    player.ruffle().load(selectedFile).then(() => {
-                        console.info("Ruffle successfully loaded the file");
-                    }).catch((e) => {
-                        console.error(`Ruffle failed to load the file: ${e}`);
-                    });
+                    // 释放上一个游戏占用的 Blob URL
+                    if (currentBlobUrl) {
+                        URL.revokeObjectURL(currentBlobUrl);
+                        currentBlobUrl = null;
+                    }
+
+                    try {
+                        let blobData = null;
+
+                        // 尝试从缓存读取
+                        blobData = await getFromCache(gameUrl);
+                        if (blobData) {
+                            console.info(`Loading game from cache: ${selectedOption.textContent}`);
+                        } else {
+                            // 缓存未命中 -> 网络下载
+                            console.info(`Downloading game from network: ${selectedOption.textContent}`);
+                            const response = await fetch(gameUrl);
+                            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                            // 先克隆再消费，避免 body 已被使用
+                            const responseForCache = response.clone();
+                            blobData = await response.blob();
+                            saveToCache(gameUrl, responseForCache).catch(e => console.warn);
+                        }
+
+                        // 生成 Blob URL 并传递给 Ruffle
+                        const blobUrl = URL.createObjectURL(blobData);
+                        currentBlobUrl = blobUrl;
+                        await player.ruffle().load(blobUrl);
+                        console.info("Ruffle successfully loaded the game");
+                    } catch (error) {
+                        console.error("Game loading failed:", error);
+                    }
                 });
 
                 const chooseFile = document.getElementById('chooseFile');
@@ -337,28 +480,6 @@
                     rendererChangeWarning.style.display = 'none';
                 }, 3000);
             });
-
-            //Ruffle Player的基本配置
-            window.RufflePlayer.config = {
-                "allowScriptAccess": true,
-                "autoplay": "on",
-                "showSwfDownload": true,
-                "upgradeToHttps": window.location.protocol === "https:",
-
-                //缩放设置，防止当前swf不应显示的素材显示出来
-                "scale": "showAll",
-                "forceAlign": "true",
-                "forceScale": "true",
-                "letterbox": "on",
-
-                "quality": "low",
-                "openUrlMode": "confirm",
-                "allowNetworking": "all",
-                "preferredRenderer": "wgpu-webgl",
-
-                "playerVersion": "32",
-                "playerRuntime": "flashPlayer",
-            };
 
             //点击使用方法按钮显示或隐藏帮助信息
             function helpInfo() {
