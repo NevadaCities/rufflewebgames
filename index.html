@@ -168,6 +168,19 @@
             button {
                 justify-content: center;
             }
+            #isLoadingWarning {
+                position: fixed;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 15px;
+                border-radius: 5px;
+                z-index: 1000;
+                display: none;
+                line-break: strict;
+            }
         </style>
     </head>
     <body>
@@ -213,6 +226,7 @@
 
         <div id="rendererChangeWarning"></div>
         <div id="fontChangeWarning"></div>
+        <div id="isLoadingWarning"></div>
 
         <div class="player" id="player"></div>
         <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
@@ -350,6 +364,19 @@
                 "playerRuntime": "flashPlayer",
             };
 
+            const isLoadingWarning = document.getElementById('isLoadingWarning');
+            isLoadingWarning.textContent = '正在从JsDelivr加载Flash文件，请稍候...';
+
+            function showLoadingWarning() {
+                isLoadingWarning.style.display = 'block';
+            }
+
+            function hideLoadingWarning() {
+                isLoadingWarning.style.display = 'none';
+            }
+
+            // 全局加载标志
+            let isLoading = false;
             // 播放器创建与缓存加载
             let currentBlobUrl = null; // 用于释放之前的 Blob URL
 
@@ -372,6 +399,12 @@
                 // 绑定加载按钮事件（带缓存逻辑）
                 const loadButton = document.getElementById("loadButton");
                 loadButton.addEventListener("click", async () => {
+                    // 防止重复加载
+                    if (isLoading) {
+                        showLoadingWarning(); // 再次提醒用户正在加载（不重复请求）
+                        return;
+                    }
+
                     const selectedOption = document.getElementById('gameSelect').selectedOptions[0];
                     if (!selectedOption || !selectedOption.id) {
                         console.warn("Please select a game first");
@@ -393,7 +426,10 @@
                         if (blobData) {
                             console.info(`Loading game from cache: ${selectedOption.textContent}`);
                         } else {
-                            // 缓存未命中 -> 网络下载
+                            // 缓存未命中，显示加载提示
+                            isLoading = true;
+                            showLoadingWarning();
+                            // 缓存未命中，从网络下载
                             console.info(`Downloading game from network: ${selectedOption.textContent}`);
                             const response = await fetch(gameUrl);
                             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -410,6 +446,11 @@
                         console.info("Ruffle successfully loaded the game");
                     } catch (error) {
                         console.error("Game loading failed:", error);
+                    } finally {
+                        if (isLoading) {
+                            isLoading = false;
+                            hideLoadingWarning();
+                        }
                     }
                 });
 
